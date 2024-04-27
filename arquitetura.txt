@@ -1,0 +1,51 @@
+📦 MedYes
+ ┣ 📂backend
+ ┃ ┣ 📂app
+ ┃ ┃ ┣ 📂Controllers
+ ┃ ┃ ┃ ┣ 📜AtendimentoController.js
+ ┃ ┃ ┃ ┣ 📜MedicoController.js
+ ┃ ┃ ┃ ┣ 📜PacienteController.js
+ ┃ ┃ ┃ ┗ 📜SecretarioController.js
+ ┃ ┃ ┣ 📂Models
+ ┃ ┃ ┃ ┣ 📜Atendimento.js
+ ┃ ┃ ┃ ┣ 📜Medico.js
+ ┃ ┃ ┃ ┣ 📜Paciente.js
+ ┃ ┃ ┃ ┗ 📜Secretario.js
+ ┃ ┃ ┗ 📂Validators
+ ┃ ┃ ┃ ┣ 📜AtendimentoValidator.js
+ ┃ ┃ ┃ ┣ 📜MedicoValidator.js
+ ┃ ┃ ┃ ┣ 📜PacienteValidator.js
+ ┃ ┃ ┃ ┗ 📜SecretarioValidator.js
+ ┃ ┣ 📂config
+ ┃ ┃ ┗ 📜database.js
+ ┃ ┣ 📂database
+ ┃ ┃ ┗ 📂migrations
+ ┃ ┃ ┃ ┣ 📜1605981587916_medico.js
+ ┃ ┃ ┃ ┣ 📜1605981587917_paciente.js
+ ┃ ┃ ┃ ┣ 📜1605981587918_secretario.js
+ ┃ ┃ ┃ ┗ 📜1605981587919_atendimento.js
+ ┃ ┣ 📂start
+ ┃ ┃ ┗ 📜routes.js
+ ┃ ┗ 📜.env
+ ┣ 📂frontend
+ ┃ ┣ 📂src
+ ┃ ┃ ┣ 📂components
+ ┃ ┃ ┃ ┣ 📜Atendimento.vue
+ ┃ ┃ ┃ ┣ 📜Medico.vue
+ ┃ ┃ ┃ ┣ 📜Paciente.vue
+ ┃ ┃ ┃ ┗ 📜Secretario.vue
+ ┃ ┃ ┣ 📂router
+ ┃ ┃ ┃ ┗ 📜index.js
+ ┃ ┃ ┣ 📂store
+ ┃ ┃ ┃ ┗ 📜index.js
+ ┃ ┃ ┗ 📜main.js
+ ┃ ┣ 📂public
+ ┃ ┃ ┣ 📜
+ ┃ ┃ ┣ 📜favicon.ico
+ ┃ ┃ ┗ 📜index.html
+ ┃ ┗ 📜package.json
+ ┣ 📂docker
+ ┃ ┣ 📜docker-compose.yml
+ ┃ ┣ 📜Dockerfile-backend
+ ┃ ┗ 📜Dockerfile-frontend
+ ┗ 📜README.md
