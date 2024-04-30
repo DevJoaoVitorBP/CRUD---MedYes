@@ -4,8 +4,6 @@ class DoctorUseCases {
   }
 
   createDoctor(doctor) {
-    // Validate doctor
-    // You should add your own validation logic here
     return this.doctorRepository.create(doctor);
   }
 
@@ -18,14 +16,14 @@ class DoctorUseCases {
   }
 
   updateDoctor(id, doctor) {
-    // Validate doctor
-    // You should add your own validation logic here
     return this.doctorRepository.update(id, doctor);
   }
 
   deleteDoctor(id) {
     return this.doctorRepository.delete(id);
   }
+
+  
 }
 
 module.exports = DoctorUseCases;

@@ -1,4 +1,8 @@
 const mysql = require('mysql');
+const PatientRepository = require('./adapters/PatientRepository');
+const PatientUseCases = require('./use_cases/PatientUseCases');
+const SecretaryRepository = require('./adapters/SecretaryRepository');
+const SecretaryUseCases = require('./use_cases/SecretaryUseCases');
 const DoctorRepository = require('./adapters/DoctorRepository');
 const DoctorUseCases = require('./use_cases/DoctorUseCases'); // Import DoctorUseCases
 const Server = require('./frameworks/Server');
@@ -10,11 +14,16 @@ const connection = mysql.createConnection({
   database: 'dbMedYes'
 });
 
+
 connection.connect();
 
+const patientRepository = new PatientRepository(connection);
+const patientUseCases = new PatientUseCases(patientRepository);
+const secretaryRepository = new SecretaryRepository(connection);
+const secretaryUseCases = new SecretaryUseCases(secretaryRepository);
 const doctorRepository = new DoctorRepository(connection);
 const doctorUseCases = new DoctorUseCases(doctorRepository);
-const server = new Server(doctorUseCases);
+const server = new Server(doctorUseCases, patientUseCases, secretaryUseCases);
 
 console.log('Server started on port 3000: http://localhost:3000');
 server.start();
