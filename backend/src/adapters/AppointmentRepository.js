@@ -9,17 +9,31 @@ class Appointment
 
     async create(appointment)
     {
-        if(!appointment.medicoID || !appointment.pacienteID || !appointment.dataEntrada)
-        {
-            throw new Error('MedicoID, PacienteID e Data de Entrada são obrigatórios');
+        if (!appointment.medicoNome || !appointment.pacienteNome || !appointment.dataEntrada) {
+            throw new Error('MedicoNome, PacienteNome e Data de Entrada são obrigatórios');
         }
-        try
-        {
+        try {
+            const queryMedico = 'SELECT id FROM medico WHERE nome = ?';
+            const medicoResults = await this.executeQuery(queryMedico, [appointment.medicoNome]);
+            const medicoID = medicoResults[0].id;
+    
+            const queryPaciente = 'SELECT id FROM paciente WHERE nome = ?';
+            const pacienteResults = await this.executeQuery(queryPaciente, [appointment.pacienteNome]);
+            const pacienteID = pacienteResults[0].id;
+    
             const query = 'INSERT INTO consulta (medicoID, pacienteID, dataEntrada, dataSaida, notas) VALUES (?, ?, ?, ?, ?)';
-            const values = [appointment.medicoID, appointment.pacienteID, appointment.dataEntrada, appointment.dataSaida, appointment.notas];
+            const values = [medicoID, pacienteID, appointment.dataEntrada, appointment.dataSaida, appointment.notas];
             const results = await this.executeQuery(query, values);
             const insertedId = results.insertId;
-            return new Appointment(insertedId, appointment.medicoID, appointment.pacienteID, appointment.dataEntrada, appointment.dataSaida, appointment.notas);
+    
+            return {
+                id: insertedId,
+                medicoNome: appointment.medicoNome,
+                pacienteNome: appointment.pacienteNome,
+                dataEntrada: appointment.dataEntrada,
+                dataSaida: appointment.dataSaida,
+                notas: appointment.notas
+            };
         }
         catch (error)
         {

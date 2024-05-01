@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import DoctorCreate from './components/SecretaryComponent.vue';
+import DoctorCreate from './components/AppointmentComponent.vue';
 
 export default {
   name: 'App',

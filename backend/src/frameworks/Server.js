@@ -140,7 +140,7 @@ class Server {
   }
 
   async getAppointments(req, res) {
-    const appointments = await this.AppointmentUseCases.getAllAppointments();
+    const appointments = await this.AppointmentUseCases.getAppointments();
     res.send(appointments);
   }
 

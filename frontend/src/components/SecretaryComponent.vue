@@ -10,23 +10,23 @@
   display: flex;
 }
 
-.cadastrarMedico,
-.listaMedico {
+.cadastrarSecretaria,
+.listaSecretaria {
   width: 400px; /* Largura do componente */
 }
 
-.cadastrarMedico {
+.cadastrarSecretaria {
   margin-right: 30px; /* Adiciona espaço entre os componentes */
 }
 
-.cadastrarMedico input {
+.cadastrarSecretaria input {
   margin-bottom: 10px;
   padding: 8px;
   width: 100%;
 }
 
-.cadastrarMedico button,
-.listaMedico button {
+.cadastrarSecretaria button,
+.listaSecretaria button {
   width: 100%;
   padding: 10px;
   background-color: #007bff; /* Azul */
@@ -37,17 +37,17 @@
   cursor: pointer;
 }
 
-.cadastrarMedico button:hover,
-.listaMedico button:hover {
+.cadastrarSecretaria button:hover,
+.listaSecretaria button:hover {
   background-color: #0056b3; /* Azul mais escuro */
 }
 
-.listaMedico ul {
+.listaSecretaria ul {
   list-style-type: none;
   padding: 0;
 }
 
-.listaMedico li {
+.listaSecretaria li {
   background-color: #f9f9f9; /* Cinza claro */
   border: 1px solid #ddd;
   margin-bottom: 10px;
@@ -56,7 +56,7 @@
   align-items: center;
 }
 
-.listaMedico li input[type="checkbox"] {
+.listaSecretaria li input[type="checkbox"] {
   margin-right: 10px;
 }
 
