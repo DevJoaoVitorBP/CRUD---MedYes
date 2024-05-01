@@ -1,6 +1,6 @@
 <template>
     <div id="layout">
-      <div class="cadastrarMedico">
+      <div class="registerAppointment">
         <input v-model="appointment.medicoNome" placeholder="Nome do Médico">
         <input v-model="appointment.pacienteNome" placeholder="Nome do Paciente">
         <input v-model="appointment.dataEntrada" placeholder="Data de Entrada" type="date">
@@ -9,11 +9,22 @@
         <button @click="createAppointment">Criar Consulta</button>
         <p>{{ message }}</p>
       </div>
+
+      <div class="lstAppointment">
+        <ul>
+          <li v-for="appointment in appointments" :key="appointment.id">
+  <input type="checkbox" v-model="appointment.selected">
+  Médico: {{ appointment.medicoNome }} - Paciente: {{ appointment.pacienteNome }} - Entrada: {{ new Date(appointment.dataEntrada).toLocaleDateString() }} - Saída: {{ new Date(appointment.dataSaida).toLocaleDateString() }}
+</li>
+        </ul>
+        <button @click="removeSelectedAppointments">Remover consultas selecionadas</button>
+        <p>{{ removeMessage }}</p>
+      </div>
     </div>
   </template>
   
   <script>
-  import { reactive, ref } from 'vue';
+  import { reactive, ref, onMounted } from 'vue';
   import axios from 'axios';
   
   export default {
@@ -26,13 +37,85 @@
         notas: ''
       });
       const message = ref('');
+      const removeMessage = ref('');
+      const appointments = ref([]);
+
+      const showMessage = (count) => {
+        if (count === 1) {
+          removeMessage.value = 'Consulta foi removida com sucesso!';
+        } else if (count > 1) {
+          removeMessage.value = 'Consultas foram removidas com sucesso!';
+        }
+      };
+
+      const checkMedicoExists = async (medicoNome) => {
+  try {
+    const response = await axios.get(`http://localhost:3000/api/medicos/${medicoNome}`);
+    return response.data.exists;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+const checkPacienteExists = async (pacienteNome) => {
+  try {
+    const response = await axios.get(`http://localhost:3000/api/pacientes/${pacienteNome}`);
+    return response.data.exists;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+     const fetchAppointments = async () => {
+        try {
+          const response = await axios.get('http://localhost:3000/api/appointments/');
+          appointments.value = response.data;
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      const removeSelectedAppointments = async () => {
+        const selectedAppointments = appointments.value.filter(appointment => appointment.selected);
+        const count = selectedAppointments.length;
   
+        if (count === 0) {
+          removeMessage.value = 'Por favor, selecione pelo menos uma consulta.';
+          return;
+        }
+  
+        try {
+          await axios.delete('http://localhost:3000/api/appointments', {
+            data: { appointments: selectedAppointments.map(appointment => appointment.id) }
+          });
+          showMessage(count);
+          fetchAppointments();
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+
+  
+
       const createAppointment = async () => {
         if (!appointment.medicoNome || !appointment.pacienteNome || !appointment.dataEntrada || !appointment.dataSaida) {
           message.value = 'Por favor, preencha todos os campos.';
           return;
         }
-  
+
+        if (!(await checkMedicoExists(appointment.medicoNome))) {
+        message.value = 'Médico não encontrado';
+        return;
+      }
+
+      if (!(await checkPacienteExists(appointment.pacienteNome))) {
+        message.value = 'Paciente não encontrado';
+        return;
+      }
+      
         try {
           await axios.post('http://localhost:3000/api/appointments', appointment);
           message.value = 'Consulta criada com sucesso!';
@@ -45,42 +128,21 @@
           console.error(error);
         }
       };
+
+      onMounted(fetchAppointments);
+
   
       return {
         appointment,
         message,
-        createAppointment
+        createAppointment,
+        appointments,
+        removeMessage,
+        removeSelectedAppointments,
+        checkMedicoExists,
+        checkPacienteExists
       };
     }
   };
   </script>
   
-  <style scoped>
-  #cadastrarMedico {
-    display: flex;
-    flex-direction: column;
-    width: 400px;
-  }
-  
-  #cadastrarMedico input,
-  #cadastrarMedico textarea {
-    margin-bottom: 10px;
-    padding: 8px;
-    width: 100%;
-  }
-  
-  #cadastrarMedico button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    border: none;
-    color: white;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  #cadastrarMedico button:hover {
-    background-color: #0056b3;
-  }
-  </style>

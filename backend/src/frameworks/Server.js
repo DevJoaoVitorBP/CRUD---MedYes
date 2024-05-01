@@ -6,7 +6,7 @@ const cors = require('cors');
 class Server {
   constructor(doctorUseCases, patientUseCases, secretaryUseCases, AppointmentUseCases) {
     this.patientUseCases = patientUseCases;
-    this.AppointmentUseCases = AppointmentUseCases;
+    this.appointmentUseCases = AppointmentUseCases;
     this.doctorUseCases = doctorUseCases;
     this.secretaryUseCases = secretaryUseCases;
     this.app = express();
@@ -41,8 +41,8 @@ class Server {
 
     // Rotas para operações relacionadas a consultas
     this.app.post('/api/appointments', this.handleAsync(this.createAppointment.bind(this)));
-    this.app.get('/api/appointments', this.handleAsync(this.getAppointments.bind(this)));
-    this.app.get('/api/appointments/:id', this.handleAsync(this.getAppointment.bind(this)));
+    this.app.get('/api/appointments', this.handleAsync(this.getAllAppointments.bind(this)));
+    this.app.get('/api/appointments/:id', this.handleAsync(this.getAppointment.bind(this))); // Correção aqui
     this.app.put('/api/appointments/:id', this.handleAsync(this.updateAppointment.bind(this)));
     this.app.delete('/api/appointments/:id', this.handleAsync(this.deleteAppointment.bind(this)));
 
@@ -135,27 +135,27 @@ class Server {
 
   // Handlers para operações relacionadas a consultas
   async createAppointment(req, res) {
-    const appointment = await this.AppointmentUseCases.createAppointment(req.body);
+    const appointment = await this.appointmentUseCases.createAppointment(req.body);
     res.send(appointment);
   }
 
-  async getAppointments(req, res) {
-    const appointments = await this.AppointmentUseCases.getAppointments();
+  async getAllAppointments(req, res) {
+    const appointments = await this.appointmentUseCases.getAllAppointments();
     res.send(appointments);
   }
 
   async getAppointment(req, res) {
-    const appointment = await this.AppointmentUseCases.getAppointment(req.params.id);
+    const appointment = await this.appointmentUseCases.getAppointments(req.params.id);
     res.send(appointment);
   }
 
   async updateAppointment(req, res) {
-    const appointment = await this.AppointmentUseCases.updateAppointment(req.params.id, req.body);
+    const appointment = await this.appointmentUseCases.updateAppointment(req.params.id, req.body);
     res.send(appointment);
   }
 
   async deleteAppointment(req, res) {
-    await this.AppointmentUseCases.deleteAppointment(req.params.id);
+    await this.appointmentUseCases.deleteAppointment(req.params.id);
     res.send({ message: 'Appointment deleted' });
   }
 

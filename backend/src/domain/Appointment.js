@@ -1,8 +1,8 @@
 class Appointment {
-  constructor({ id, medicoID, pacienteID, dataEntrada, dataSaida, notas}) {
+  constructor({ id, medicoId, pacienteId, dataEntrada, dataSaida, notas}) {
     this.id = id;
-    this.medicoID = medicoID;
-    this.pacienteID = pacienteID;
+    this.medicoId = medicoId;
+    this.pacienteId = pacienteId;
     this.dataEntrada = dataEntrada;
     this.dataSaida = dataSaida;
     this.notas = notas;
