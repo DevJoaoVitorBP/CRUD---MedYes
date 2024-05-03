@@ -13,8 +13,12 @@ class AppointmentUseCases {
   }
 
   async getAppointment(id) {
-      return this.appointmentRepository.getById(id);
-  }
+    const appointment = await this.appointmentRepository.getById(id);
+    if (!appointment) {
+        throw new Error(`Consulta com o ID '${id}' não encontrada`);
+    }
+    return appointment;
+}
 
   async updateAppointment(id, medicoId, pacienteId, dataEntrada, dataSaida, notas) {
       return this.appointmentRepository.update(id, medicoId, pacienteId, dataEntrada, dataSaida, notas);

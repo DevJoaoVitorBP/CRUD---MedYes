@@ -56,19 +56,40 @@ class AppointmentRepository {
 
     async getById(id) {
         try {
-            const query = 'SELECT * FROM atendimento WHERE id = ?';
-            const results = await this.executeQuery(query, [id]);
+            const query = `
+                SELECT 
+                    atendimento.id, 
+                    atendimento.dataEntrada, 
+                    atendimento.dataSaida, 
+                    atendimento.notas, 
+                    medico.id AS medicoId, 
+                    paciente.id AS pacienteId
+                FROM atendimento
+                INNER JOIN medico ON atendimento.medicoId = medico.id
+                INNER JOIN paciente ON atendimento.pacienteId = paciente.id
+                WHERE atendimento.id = ?
+            `;
+            const values = [id];
+            const results = await this.executeQuery(query, values);
             if (results.length === 0) {
                 throw new Error(`Consulta com o ID '${id}' não encontrada`);
             }
             const row = results[0];
-            const medicoNome = await this.getMedicoNome(row.medicoId);
-            const pacienteNome = await this.getPacienteNome(row.pacienteId);
-            return new Appointment(row.id, medicoNome, pacienteNome, row.dataEntrada, row.dataSaida, row.notas);
+            return new Appointment({
+                id: row.id, 
+                medicoId: row.medicoId, 
+                pacienteId: row.pacienteId, 
+                dataEntrada: row.dataEntrada, 
+                dataSaida: row.dataSaida, 
+                notas: row.notas
+            });
         } catch (error) {
             throw new Error(`Erro ao obter consulta: ${error.message}`);
         }
     }
+    
+    
+    
 
 
     async update(id, medicoId, pacienteId, dataEntrada, dataSaida, notas) {

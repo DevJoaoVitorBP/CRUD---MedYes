@@ -39,7 +39,7 @@
       const message = ref('');
       const removeMessage = ref('');
       const appointments = ref([]);
-
+  
       const showMessage = (count) => {
         if (count === 1) {
           removeMessage.value = 'Consulta foi removida com sucesso!';
@@ -47,75 +47,68 @@
           removeMessage.value = 'Consultas foram removidas com sucesso!';
         }
       };
-
+  
       const checkMedicoExists = async (medicoNome) => {
-  try {
-    const response = await axios.get(`http://localhost:3000/api/medicos/${medicoNome}`);
-    return response.data.exists;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
-};
-
-const checkPacienteExists = async (pacienteNome) => {
-  try {
-    const response = await axios.get(`http://localhost:3000/api/pacientes/${pacienteNome}`);
-    return response.data.exists;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
-};
-
-     const fetchAppointments = async () => {
         try {
-          const response = await axios.get('http://localhost:3000/api/appointments/');
-          appointments.value = response.data;
+          const response = await axios.get(`http://localhost:3000/api/medicos/${medicoNome}`);
+          return response.data.exists;
         } catch (error) {
           console.error(error);
+          return false;
         }
       };
-
-      const removeSelectedAppointments = async () => {
-        const selectedAppointments = appointments.value.filter(appointment => appointment.selected);
-        const count = selectedAppointments.length;
   
-        if (count === 0) {
-          removeMessage.value = 'Por favor, selecione pelo menos uma consulta.';
-          return;
-        }
-  
+      const checkPacienteExists = async (pacienteNome) => {
         try {
-          await axios.delete('http://localhost:3000/api/appointments', {
-            data: { appointments: selectedAppointments.map(appointment => appointment.id) }
-          });
-          showMessage(count);
-          fetchAppointments();
+          const response = await axios.get(`http://localhost:3000/api/pacientes/${pacienteNome}`);
+          return response.data.exists;
         } catch (error) {
           console.error(error);
+          return false;
         }
       };
-
-
   
-
+      const fetchAppointments = async () => {
+  try {
+    const response = await axios.get('http://localhost:3000/api/appointments/');
+    appointments.value = response.data.map(appointment => ({
+      ...appointment,
+      selected: false, // Adiciona a propriedade 'selected' a cada compromisso
+    }));
+  } catch (error) {
+    console.error(error);
+  }
+};
+  
+const removeSelectedAppointments = async () => {
+  const selected = appointments.value.filter(appointment => appointment.selected);
+  for (const appointment of selected) {
+    try {
+      await axios.delete(`http://localhost:3000/api/appointments/${appointment.id}`);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  await fetchAppointments(); // Atualiza a lista de compromissos após remover compromissos selecionados
+  showMessage(selected.length); // Exibe mensagem de remoção
+};
+  
       const createAppointment = async () => {
         if (!appointment.medicoNome || !appointment.pacienteNome || !appointment.dataEntrada || !appointment.dataSaida) {
           message.value = 'Por favor, preencha todos os campos.';
           return;
         }
-
+  
         if (!(await checkMedicoExists(appointment.medicoNome))) {
-        message.value = 'Médico não encontrado';
-        return;
-      }
-
-      if (!(await checkPacienteExists(appointment.pacienteNome))) {
-        message.value = 'Paciente não encontrado';
-        return;
-      }
-      
+          message.value = 'Médico não encontrado';
+          return;
+        }
+  
+        if (!(await checkPacienteExists(appointment.pacienteNome))) {
+          message.value = 'Paciente não encontrado';
+          return;
+        }
+  
         try {
           await axios.post('http://localhost:3000/api/appointments', appointment);
           message.value = 'Consulta criada com sucesso!';
@@ -128,9 +121,8 @@ const checkPacienteExists = async (pacienteNome) => {
           console.error(error);
         }
       };
-
+  
       onMounted(fetchAppointments);
-
   
       return {
         appointment,
@@ -140,9 +132,11 @@ const checkPacienteExists = async (pacienteNome) => {
         removeMessage,
         removeSelectedAppointments,
         checkMedicoExists,
-        checkPacienteExists
+        checkPacienteExists,
+        fetchAppointments,
       };
     }
   };
   </script>
+  
   

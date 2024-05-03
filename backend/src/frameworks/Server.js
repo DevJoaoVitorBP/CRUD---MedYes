@@ -42,8 +42,14 @@ class Server {
     // Rotas para operações relacionadas a consultas
     this.app.post('/api/appointments', this.handleAsync(this.createAppointment.bind(this)));
     this.app.get('/api/appointments', this.handleAsync(this.getAllAppointments.bind(this)));
-    this.app.get('/api/appointments/:id', this.handleAsync(this.getAppointment.bind(this))); // Correção aqui
-    this.app.put('/api/appointments/:id', this.handleAsync(this.updateAppointment.bind(this)));
+    this.app.get('/api/appointments/:id', async (req, res) => {
+      try {
+          const appointment = await this.appointmentUseCases.getAppointment(req.params.id);
+          res.send(appointment);
+      } catch (error) {
+          res.status(404).send({ message: error.message });
+      }
+  });    this.app.put('/api/appointments/:id', this.handleAsync(this.updateAppointment.bind(this)));
     this.app.delete('/api/appointments/:id', this.handleAsync(this.deleteAppointment.bind(this)));
 
   }
@@ -145,7 +151,7 @@ class Server {
   }
 
   async getAppointment(req, res) {
-    const appointment = await this.appointmentUseCases.getAppointments(req.params.id);
+    const appointment = await this.appointmentUseCases.getAppointment(req.params.id);
     res.send(appointment);
   }
 
