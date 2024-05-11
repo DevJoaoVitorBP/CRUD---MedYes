@@ -1,2 +1,0 @@
-Realizada o desenvolvimento do backend do médico e paciente
-Agora falta fazer da secretaria
