@@ -1,59 +1,72 @@
 class AppointmentUseCases {
-  constructor(appointmentRepository) {
+    constructor(appointmentRepository) {
       this.appointmentRepository = appointmentRepository;
-  }
-
-  async createAppointment(appointment) {
-      return this.appointmentRepository.create(appointment);
-  }
-
-  async getAllAppointments() {
-      const appointments = await this.appointmentRepository.getAll();
-      return appointments;
-  }
-
-  async getAppointmentById(id) {
-    try {
+    }
+  
+    async createAppointment(appointment) {
+      try {
+        return await this.appointmentRepository.create(appointment);
+      } catch (error) {
+        throw new Error(`Erro ao criar consulta: ${error.message}`);
+      }
+    }
+  
+    async getAllAppointments() {
+      try {
+        return await this.appointmentRepository.getAll();
+      } catch (error) {
+        throw new Error(`Erro ao obter todas as consultas: ${error.message}`);
+      }
+    }
+  
+    async getAppointmentById(id) {
+      try {
         const appointment = await this.appointmentRepository.getById(id);
         if (!appointment) {
-            throw new Error(`Consulta com o ID '${id}' não encontrada`);
+          throw new Error(`Consulta com o ID '${id}' não encontrada`);
         }
         return appointment;
-    } catch (error) {
-        // Handle errors from appointmentRepository.getById(id) or other unexpected errors
+      } catch (error) {
         throw new Error(`Erro ao buscar a consulta com o ID '${id}': ${error.message}`);
+      }
     }
-}
-
-
-async updateAppointment(id, updatedAppointment) {
-    try {
-        // Validate the updatedAppointment object
+  
+    async updateAppointment(id, updatedAppointment) {
+      try {
         const { medicoId, pacienteId, dataEntrada, dataSaida, notas } = updatedAppointment;
         if (!medicoId || !pacienteId || !dataEntrada || !dataSaida || !notas) {
-            throw new Error('Missing required fields');
+          throw new Error('Campos obrigatórios ausentes');
         }
-
-        // Call the update method from the repository
-        const appointment = await this.appointmentRepository.update(id, medicoId, pacienteId, dataEntrada, dataSaida, notas);
-
-        return appointment;
-    } catch (error) {
-        throw new Error(`Error updating appointment: ${error.message}`);
+        return await this.appointmentRepository.update(id, medicoId, pacienteId, dataEntrada, dataSaida, notas);
+      } catch (error) {
+        throw new Error(`Erro ao atualizar consulta: ${error.message}`);
+      }
     }
-}
-
-  async deleteAppointment(id) {
-      return this.appointmentRepository.delete(id);
-  }
-
+  
+    async deleteAppointment(id) {
+      try {
+        await this.appointmentRepository.delete(id);
+      } catch (error) {
+        throw new Error(`Erro ao excluir consulta: ${error.message}`);
+      }
+    }
+  
     async getMedicoId(id) {
-        return this.appointmentRepository.getMedicoId(id);
+      try {
+        return await this.appointmentRepository.getMedicoId(id);
+      } catch (error) {
+        throw new Error(`Erro ao obter ID do médico: ${error.message}`);
+      }
     }
-
-   async getPacienteId(id) {
-        return this.appointmentRepository.getPacienteId(id);
+  
+    async getPacienteId(id) {
+      try {
+        return await this.appointmentRepository.getPacienteId(id);
+      } catch (error) {
+        throw new Error(`Erro ao obter ID do paciente: ${error.message}`);
+      }
     }
-}
-
-module.exports = AppointmentUseCases;
+  }
+  
+  module.exports = AppointmentUseCases;
+  

@@ -9,9 +9,8 @@ class PatientRepository {
     try {
       const query = 'INSERT INTO paciente (nome, numeroCarteira) VALUES (?, ?)';
       const values = [patient.nome, patient.numeroCarteira];
-      const results = await this.executeQuery(query, values);
-      const insertedId = results.insertId;
-      return new Patient(insertedId, patient.nome, patient.numeroCarteira);
+      const { insertId } = await this.executeQuery(query, values);
+      return new Patient(insertId, patient.nome, patient.numeroCarteira);
     } catch (error) {
       throw new Error(`Erro ao criar paciente: ${error.message}`);
     }
@@ -21,9 +20,9 @@ class PatientRepository {
     try {
       const query = 'SELECT * FROM paciente';
       const results = await this.executeQuery(query);
-      return results;
+      return results.map(row => new Patient(row.id, row.nome, row.numeroCarteira));
     } catch (error) {
-      throw new Error(`Erro ao pegar informações de todos os clientes: ${error.message}`);
+      throw new Error(`Erro ao obter informações de todos os pacientes: ${error.message}`);
     }
   }
 
@@ -31,14 +30,13 @@ class PatientRepository {
     try {
       const query = 'SELECT * FROM paciente WHERE id = ?';
       const values = [id];
-      const results = await this.executeQuery(query, values);
-      if (results.length === 0) {
+      const [row] = await this.executeQuery(query, values);
+      if (!row) {
         return null;
       }
-      const row = results[0];
       return new Patient(row.id, row.nome, row.numeroCarteira);
     } catch (error) {
-      throw new Error(`Erro ao pegar ID do cliente: ${error.message}`);
+      throw new Error(`Erro ao obter paciente por ID: ${error.message}`);
     }
   }
 

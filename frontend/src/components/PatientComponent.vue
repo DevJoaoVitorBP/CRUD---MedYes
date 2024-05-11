@@ -1,9 +1,116 @@
+<template>
+  <div id="layout">
+    <div class="registerPatient">
+      <label for="nameInput">Nome:</label>
+      <input v-model="patient.nome" placeholder="Nome completo">
+      <label for="walletNumberInput">Número da Carteira:</label>
+      <input v-model="patient.numeroCarteira" placeholder="12321">
+      <button @click="createPatient">Cadastrar Paciente</button>
+      <p v-if="message" class="message">{{ message }}</p>
+    </div>
+
+    <div class="lstPatient">
+      <ul>
+        <li v-for="patient in patients" :key="patient.id">
+          <input type="checkbox" v-model="patient.selected">
+          Nome: {{ patient.nome }} | Número da Carteira: {{ patient.numeroCarteira }}
+        </li>
+      </ul>
+      <button @click="removeSelectedPatients">Remover paciente(s) selecionado(s)</button>
+      <p v-if="removeMessage" class="message">{{ removeMessage }}</p>
+    </div>
+  </div>
+</template>
+
+<script>
+import { reactive, ref, onMounted } from 'vue';
+import axios from 'axios';
+
+export default {
+  setup() {
+    const patient = reactive({
+      nome: '',
+      numeroCarteira: ''
+    });
+
+    const message = ref('');
+    const removeMessage = ref('');
+    const patients = ref([]);
+
+    const showMessage = (msgRef, count) => {
+      msgRef.value = `Paciente${count > 1 ? 's' : ''} removido${count > 1 ? 's' : ''} com sucesso!`;
+      setTimeout(() => {
+        msgRef.value = '';
+      }, 5000);
+    };
+
+    const createPatient = async () => {
+      if (!patient.nome || !patient.numeroCarteira) {
+        message.value = 'Por favor, insira o nome e o número da carteira.';
+        showMessage(message, 0);
+        return;
+      }
+
+      if (!/^\d+$/.test(patient.numeroCarteira)) {
+        message.value = 'O número da carteira deve conter apenas números.';
+        showMessage(message, 0);
+        return;
+      }
+
+      try {
+        await axios.post('http://localhost:3000/api/patients', patient);
+        message.value = 'Paciente cadastrado com sucesso!';
+        patient.nome = '';
+        patient.numeroCarteira = '';
+        fetchPatients();
+        showMessage(message, 0);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const fetchPatients = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/patients');
+        patients.value = response.data;
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const removeSelectedPatients = async () => {
+      const selectedPatients = patients.value.filter(patient => patient.selected);
+      for (const patient of selectedPatients) {
+        try {
+          await axios.delete(`http://localhost:3000/api/patients/${patient.id}`);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      fetchPatients();
+      showMessage(removeMessage, selectedPatients.length);
+    };
+
+    onMounted(fetchPatients);
+
+    return {
+      patients,
+      patient,
+      message,
+      removeMessage,
+      createPatient,
+      removeSelectedPatients
+    };
+  }
+};
+</script>
+
 <style scoped>
 #layout {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh; /* Altura total da viewport */
+  height: 100vh;
 }
 
 .container {
@@ -12,11 +119,11 @@
 
 .registerPatient,
 .lstPatient {
-  width: 400px; /* Largura do componente */
+  width: 400px;
 }
 
 .registerPatient {
-  margin-right: 30px; /* Adiciona espaço entre os componentes */
+  margin-right: 30px;
 }
 
 .registerPatient input {
@@ -29,7 +136,7 @@
 .lstPatient button {
   width: 100%;
   padding: 10px;
-  background-color: #007bff; /* Azul */
+  background-color: #007bff;
   border: none;
   color: white;
   font-size: 16px;
@@ -38,12 +145,12 @@
 }
 
 .patient-item {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .registerPatient button:hover,
 .lstPatient button:hover {
-  background-color: #0056b3; /* Azul mais escuro */
+  background-color: #0056b3;
 }
 
 .lstPatient ul {
@@ -52,7 +159,7 @@
 }
 
 .lstPatient li {
-  background-color: #f9f9f9; /* Cinza claro */
+  background-color: #f9f9f9;
   border: 1px solid #ddd;
   margin-bottom: 10px;
   padding: 10px;
@@ -68,114 +175,4 @@
   color: green;
   font-size: 20px;
 }
-
 </style>
-
-
-
-  
-
-<template>
-  <div id = 'layout'>
-    <div class = 'registerPatient'>
-        <input v-model="patient.nome" placeholder="Nome">
-      <input v-model="patient.numeroCarteira" placeholder="numeroCarteira">
-      <button @click="createPatient">Cadastrar Paciente</button>
-      <p>{{ message }}</p>
-    </div>
-
-    <div class = 'lstPatient'>
-      <ul>
-        <li v-for="patient in Patients" :key="patient.id">
-          <input type="checkbox" v-model="patient.selected">
-         Nome: {{ patient.nome }}  Numero carteira: {{ patient.numeroCarteira }}
-        </li>
-      </ul>
-      <button @click="removeSelectedPatients">Remover paciente selecionado(os)</button>
-      <p>{{ removeMessage }}</p>
-    </div>
-  </div>
-</template>
-
-<script>
-
-import { reactive, ref, onMounted } from 'vue';
-import axios from 'axios';
-
-export default {
-  setup() {
-    const patient = reactive({
-      nome: '',
-      numeroCarteira: ''
-    });
-    const message = ref('');
-    const removeMessage = ref('');
-    const Patients = ref([]);
-
-    const showMessage = (count) => {
-      if (count === 1) {
-        removeMessage.value = 'Paciente foi removido com sucesso!';
-      } else if (count > 1) {
-        removeMessage.value = 'Pacientes foram removidos com sucesso!';
-      }
-    };
-
-    const createPatient = async () => {
-      if (!patient.nome || !patient.numeroCarteira) {
-        message.value = 'Por favor, insira o nome e o dataAdmissao.';
-        return;
-      }
-
-      if (!/^\d+$/.test(patient.numeroCarteira)) {
-        message.value = 'O numeroCarteira deve conter apenas números.';
-        return;
-      }
-
-      
-
-      try {
-        await axios.post('http://localhost:3000/api/patients', patient);
-        message.value = 'Médico cadastrado com sucesso!';
-        patient.nome = ''; // Reseta o campo de nome
-        patient.numeroCarteira = ''; // Reseta o campo dataAdmissao
-        fetchPatients(); // Atualiza a lista de médicos após adicionar um novo médico
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    const fetchPatients = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/api/patients');
-        Patients.value = response.data;
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    const removeSelectedPatients = async () => {
-      const selectedPatients = Patients.value.filter(patient => patient.selected);
-      for (const patient of selectedPatients) {
-        try {
-          await axios.delete(`http://localhost:3000/api/Patients/${patient.id}`);
-        } catch (error) {
-          console.error(error);
-        }
-      }
-      fetchPatients(); // Atualiza a lista de médicos após remover médicos selecionados
-      showMessage(selectedPatients.length); // Exibe mensagem de remoção
-    };
-
-    onMounted(fetchPatients);
-
-    return {
-      Patients,
-      patient,
-      message,
-      removeMessage,
-      createPatient,
-      removeSelectedPatients
-    };
-  }
-};
-</script>

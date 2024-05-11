@@ -6,32 +6,16 @@ class AppointmentRepository {
     }
 
     async create(appointment) {
-        //    if (!appointment.medicoNome || !appointment.pacienteNome || !appointment.dataEntrada) {
-    
-        
-            try {
-              //  const medicoId = await this.getMedicoId(appointment.medicoNome);
-           //     const pacienteId = await this.getPacienteId(appointment.pacienteNome);
-             const query = 'INSERT INTO atendimento (medicoId, pacienteId, dataEntrada, dataSaida, notas) VALUES (?, ?, ?, ?, ?)';
-    
-               // const query = 'INSERT INTO atendimento (medicoId) VALUES (?)';
-                const values = [appointment.medicoId, appointment.pacienteId, appointment.dataEntrada, appointment.dataSaida, appointment.notas];
-    
-                const results = await this.executeQuery(query, values);
-                const insertedId = results.insertId;
-             //   return new Appointment(insertedId, medicoId, pacienteId, appointment.dataEntrada, appointment.dataSaida, appointment.notas);
-    
-                return new Appointment(insertedId, appointment.medicoId, appointment.pacienteId, appointment.dataEntrada, appointment.dataSaida, appointment.notas);
-            }
-            catch (error) {
-                throw new Error(`Erro ao criar consulta: ${error.message}`);
-            }
+        try {
+            const query = 'INSERT INTO atendimento (medicoId, pacienteId, dataEntrada, dataSaida, notas) VALUES (?, ?, ?, ?, ?)';
+            const values = [appointment.medicoId, appointment.pacienteId, appointment.dataEntrada, appointment.dataSaida, appointment.notas];
+            const results = await this.executeQuery(query, values);
+            const insertedId = results.insertId;
+            return new Appointment(insertedId, appointment.medicoId, appointment.pacienteId, appointment.dataEntrada, appointment.dataSaida, appointment.notas);
+        } catch (error) {
+            throw new Error(`Erro ao criar consulta: ${error.message}`);
         }
-    
-    
-    
-    
-    
+    }
 
     async getAll() {
         try {
@@ -79,27 +63,17 @@ class AppointmentRepository {
             throw new Error(`Erro ao obter consulta: ${error.message}`);
         }
     }
-    
 
-        async update(id, medicoId, pacienteId, dataEntrada, dataSaida, notas) {
-            try {
-                const query = 'UPDATE atendimento SET medicoId = ?, pacienteId = ?, dataEntrada = ?, dataSaida = ?, notas = ? WHERE id = ?';
-                const values = [medicoId, pacienteId, dataEntrada, dataSaida, notas, id]; // Alteração na ordem dos valores
-                
-                console.log("Generated SQL Query:", query, "with values:", values);
-
-                await this.executeQuery(query, values);
-        
-                return { id, medicoId, pacienteId, dataEntrada, dataSaida, notas };
-            } catch (error) {
-                throw new Error(`Erro ao atualizar consulta: ${error.message}`);
-            }
+    async update(id, medicoId, pacienteId, dataEntrada, dataSaida, notas) {
+        try {
+            const query = 'UPDATE atendimento SET medicoId = ?, pacienteId = ?, dataEntrada = ?, dataSaida = ?, notas = ? WHERE id = ?';
+            const values = [medicoId, pacienteId, dataEntrada, dataSaida, notas, id]; 
+            await this.executeQuery(query, values);
+            return { id, medicoId, pacienteId, dataEntrada, dataSaida, notas };
+        } catch (error) {
+            throw new Error(`Erro ao atualizar consulta: ${error.message}`);
         }
-    
-    
-    
-      
-    
+    }
 
     async delete(id) {
         try {
@@ -120,7 +94,7 @@ class AppointmentRepository {
             throw new Error(`Médico com nome ${medicoNome} não encontrado`);
         }
     }
-    
+
     async getPacienteID(pacienteNome) {
         const query = 'SELECT id FROM paciente WHERE nome = ?';
         const results = await this.executeQuery(query, [pacienteNome]);
@@ -132,7 +106,6 @@ class AppointmentRepository {
     }
 
     async getMedicoNome(medicoId) {
-        console.log(medicoId)
         const query = 'SELECT nome FROM medico WHERE id = ?';
         const results = await this.executeQuery(query, [medicoId]);
         if (results.length === 0) {
@@ -140,7 +113,6 @@ class AppointmentRepository {
         }
         return results[0].nome;
     }
-
 
     async getPacienteNome(pacienteId) {
         const query = 'SELECT nome FROM paciente WHERE id = ?';

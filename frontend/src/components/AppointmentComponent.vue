@@ -1,34 +1,84 @@
+<style>
+/* Estilos gerais */
+#layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Estilos para o formulário de registro de consulta */
+.registerAppointment {
+  width: 50%;
+  margin-bottom: 20px;
+}
+
+.registerAppointment input,
+.registerAppointment textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  font-size: 16px;
+}
+
+.registerAppointment button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Estilos para a lista de consultas */
+.lstAppointment {
+  width: 50%;
+}
+
+.lstAppointment ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.lstAppointment li {
+  margin-bottom: 10px;
+}
+
+
+
+</style>
+
 <template>
   <div id="layout">
+    <!-- Formulário de registro de consulta -->
     <div class="registerAppointment">
-      <input v-model="appointment.medicoId" placeholder="Nome do Médico">
-      <input v-model="appointment.pacienteId" placeholder="Nome do Paciente">
-      <input v-model="appointment.dataEntrada" placeholder="Data de Entrada" type="date">
-      <input v-model="appointment.dataSaida" placeholder="Data de Saída" type="date">
-      <textarea v-model="appointment.notas" placeholder="Notas"></textarea>
+      <input v-model="newAppointment.medicoId" placeholder="Nome do Médico">
+      <input v-model="newAppointment.pacienteId" placeholder="Nome do Paciente">
+      <input v-model="newAppointment.dataEntrada" placeholder="Data de Entrada" type="date">
+      <input v-model="newAppointment.dataSaida" placeholder="Data de Saída" type="date">
+      <textarea v-model="newAppointment.notas" placeholder="Notas"></textarea>
       <button @click="createAppointment">Criar Consulta</button>
-      <p>{{ message }}</p>
+      <p>{{ createMessage }}</p>
     </div>
 
+    <!-- Lista de consultas -->
     <div class="lstAppointment">
       <ul>
         <li v-for="appointment in appointments" :key="appointment.id">
           <input type="checkbox" v-model="appointment.selected">
-          Médico: {{ appointment.medicoNome }} - Paciente: {{ appointment.pacienteNome }} - Entrada: {{ new Date(appointment.dataEntrada).toLocaleDateString() }} - Saída: {{ new Date(appointment.dataSaida).toLocaleDateString() }}
-          <button @click="showUpdateForm = true; selectedAppointment = appointment">Atualizar</button>
+          Médico: {{ appointment.medicoNome }} - Paciente: {{ appointment.pacienteNome }} - Entrada: {{ formattedDate(appointment.dataEntrada) }} - Saída: {{ formattedDate(appointment.dataSaida) }}
+          <button @click="showUpdateForm(appointment)">Atualizar</button>
         </li>
       </ul>
       <button @click="removeSelectedAppointments">Remover consultas selecionadas</button>
       <p>{{ removeMessage }}</p>
     </div>
 
-    <div v-if="showUpdateForm">
+    <!-- Formulário de atualização -->
+    <div v-if="showUpdate">
       <input v-model="selectedAppointment.medicoId" placeholder="Nome do Médico">
       <input v-model="selectedAppointment.pacienteId" placeholder="Nome do Paciente">
       <input v-model="selectedAppointment.dataEntrada" placeholder="Data de Entrada" type="date">
       <input v-model="selectedAppointment.dataSaida" placeholder="Data de Saída" type="date">
       <textarea v-model="selectedAppointment.notas" placeholder="Notas"></textarea>
-      <p>{{ message }}</p>
+      <p>{{ updateMessage }}</p>
       <button @click="updateAppointment">Atualizar Consulta</button>
     </div>
   </div>
@@ -40,17 +90,17 @@ import axios from 'axios';
 
 export default {
   setup() {
-    const appointment = reactive({
+    const newAppointment = reactive({
       medicoId: '',
       pacienteId: '',
       dataEntrada: '',
       dataSaida: '',
       notas: ''
     });
-    const message = ref('');
+    const createMessage = ref('');
     const removeMessage = ref('');
     const appointments = ref([]);
-    const selectedAppointment = ref({
+    const selectedAppointment = reactive({
       id: '',
       medicoId: '',
       pacienteId: '',
@@ -58,7 +108,12 @@ export default {
       dataSaida: '',
       notas: ''
     });
-    const showUpdateForm = ref(false);
+    const showUpdate = ref(false);
+    const updateMessage = ref('');
+
+    const formattedDate = (dateString) => {
+      return new Date(dateString).toLocaleDateString();
+    };
 
     const showMessage = (count) => {
       if (count === 1) {
@@ -84,46 +139,32 @@ export default {
       }
     };
 
+
     const createAppointment = async () => {
       try {
-        await axios.post('http://localhost:3000/api/appointments/create', appointment);
-        message.value = 'Consulta cadastrada com sucesso!';
-        appointment.medicoId = '';
-        appointment.pacienteId = '';
-        appointment.dataEntrada = '';
-        appointment.dataSaida = '';
-        appointment.notas = '';
-        fetchAppointments();
+        await axios.post('http://localhost:3000/api/appointments/create', newAppointment);
+        createMessage.value = 'Consulta cadastrada com sucesso!';
+        newAppointment.medicoId = '';
+        newAppointment.pacienteId = '';
+        newAppointment.dataEntrada = '';
+        newAppointment.dataSaida = '';
+        newAppointment.notas = '';
+        await fetchAppointments();
       } catch (error) {
         console.error('Erro ao criar consulta:', error);
       }
     };
 
     const updateAppointment = async () => {
-  try {
-    // Certifique-se de que selectedAppointment.value contém todas as informações necessárias
-    if (!selectedAppointment.value.medicoId || !selectedAppointment.value.pacienteId || !selectedAppointment.value.dataEntrada || !selectedAppointment.value.dataSaida || !selectedAppointment.value.notas) {
-      message.value = 'Por favor, preencha todos os campos.';
-      return;
-    }
-
-    // Envie uma solicitação PUT com os dados atualizados da consulta
-    await axios.put(`http://localhost:3000/api/appointments/${selectedAppointment.value.id}`, {
-      medicoId: selectedAppointment.value.medicoId,
-      pacienteId: selectedAppointment.value.pacienteId,
-      dataEntrada: selectedAppointment.value.dataEntrada,
-      dataSaida: selectedAppointment.value.dataSaida,
-      notas: selectedAppointment.value.notas
-    });
-
-    message.value = 'Consulta atualizada com sucesso!';
-    fetchAppointments(); // Atualize a lista de consultas após a atualização
-    showUpdateForm.value = false; // Oculte o formulário de atualização
-  } catch (error) {
-    console.error('Erro ao atualizar consulta:', error);
-  }
-};
-
+      try {
+        await axios.put(`http://localhost:3000/api/appointments/${selectedAppointment.id}`, selectedAppointment);
+        updateMessage.value = 'Consulta atualizada com sucesso!';
+        await fetchAppointments(); // Atualize a lista de consultas após a atualização
+        showUpdate.value = false; // Oculte o formulário de atualização
+      } catch (error) {
+        console.error('Erro ao atualizar consulta:', error);
+      }
+    };
 
     const removeSelectedAppointments = async () => {
       const selected = appointments.value.filter(appointment => appointment.selected);
@@ -138,19 +179,33 @@ export default {
       showMessage(selected.length);
     };
 
+    const showUpdateForm = (appointment) => {
+      selectedAppointment.id = appointment.id;
+      selectedAppointment.medicoId = appointment.medicoId;
+      selectedAppointment.pacienteId = appointment.pacienteId;
+      selectedAppointment.dataEntrada = appointment.dataEntrada;
+      selectedAppointment.dataSaida = appointment.dataSaida;
+      selectedAppointment.notas = appointment.notas;
+      showUpdate.value = true;
+    };
+
     onMounted(fetchAppointments);
 
     return {
-      appointment,
-      message,
-      createAppointment,
-      appointments,
+      newAppointment,
+      createMessage,
       removeMessage,
-      removeSelectedAppointments,
-      fetchAppointments,
+      appointments,
       selectedAppointment,
-      showUpdateForm,
+      showUpdate,
+      updateMessage,
+      formattedDate,
+      showMessage,
+      fetchAppointments,
+      createAppointment,
+      removeSelectedAppointments,
       updateAppointment,
+      showUpdateForm
     };
   }
 };

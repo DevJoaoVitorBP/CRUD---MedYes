@@ -1,29 +1,47 @@
-class SecretaryUseCases  {
+class SecretaryUseCases {
     constructor(secretaryRepository) {
         this.secretaryRepository = secretaryRepository;
     }
 
-    createSecretary(secretary) {
-        return this.secretaryRepository.create(secretary);
+    async createSecretary(secretary) {
+        try {
+            return await this.secretaryRepository.create(secretary);
+        } catch (error) {
+            throw new Error(`Erro ao criar secretária: ${error.message}`);
+        }
     }
 
-    getSecretaries() {
-        return this.secretaryRepository.getAll();
+    async getSecretaries() {
+        try {
+            return await this.secretaryRepository.getAll();
+        } catch (error) {
+            throw new Error(`Erro ao obter secretárias: ${error.message}`);
+        }
     }
 
-    getSecretary(id) {
-        return this.secretaryRepository.getById(id);
+    async getSecretary(id) {
+        try {
+            return await this.secretaryRepository.getById(id);
+        } catch (error) {
+            throw new Error(`Erro ao obter secretária com ID ${id}: ${error.message}`);
+        }
     }
 
-    updateSecretary(id, secretary) {
-        return this.secretaryRepository.update(id, secretary);
+    async updateSecretary(id, secretary) {
+        try {
+            return await this.secretaryRepository.update(id, secretary);
+        } catch (error) {
+            throw new Error(`Erro ao atualizar secretária com ID ${id}: ${error.message}`);
+        }
     }
 
-    deleteSecretary(id) {
-        return this.secretaryRepository.delete(id);
-        
+    async deleteSecretary(id) {
+        try {
+            await this.secretaryRepository.delete(id);
+        } catch (error) {
+            throw new Error(`Erro ao deletar secretária com ID ${id}: ${error.message}`);
+        }
     }
-
 }
 
 module.exports = SecretaryUseCases;

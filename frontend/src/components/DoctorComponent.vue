@@ -1,93 +1,25 @@
-<style scoped>
-#layout {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh; /* Altura total da viewport */
-}
-
-.container {
-  display: flex;
-}
-
-.cadastrarMedico,
-.listaMedico {
-  width: 400px; /* Largura do componente */
-}
-
-.cadastrarMedico {
-  margin-right: 30px; /* Adiciona espaço entre os componentes */
-}
-
-.cadastrarMedico input {
-  margin-bottom: 10px;
-  padding: 8px;
-  width: 100%;
-}
-
-.cadastrarMedico button,
-.listaMedico button {
-  width: 100%;
-  padding: 10px;
-  background-color: #007bff; /* Azul */
-  border: none;
-  color: white;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.cadastrarMedico button:hover,
-.listaMedico button:hover {
-  background-color: #0056b3; /* Azul mais escuro */
-}
-
-.listaMedico ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.listaMedico li {
-  background-color: #f9f9f9; /* Cinza claro */
-  border: 1px solid #ddd;
-  margin-bottom: 10px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-}
-
-.listaMedico li input[type="checkbox"] {
-  margin-right: 10px;
-}
-
-.message {
-  color: green;
-  font-size: 20px;
-}
-</style>
-
-
-
-  
-
 <template>
-  <div id = 'layout'>
-    <div class = 'cadastrarMedico'>
-      <input v-model="doctor.nome" placeholder="Nome">
-      <input v-model="doctor.registro" placeholder="Registro">
+  <div id="layout">
+    <!-- Formulário de cadastro de médico -->
+    <div class="cadastrarMedico">
+      <label for="nameInput">Nome:</label>
+      <input id="nameInput" v-model="doctor.nome" placeholder="Dr. José">
+      <label for="registrationInput">Registro:</label>
+      <input id="registrationInput" v-model="doctor.registro" placeholder="13123">
       <button @click="createDoctor">Cadastrar médico</button>
-      <p>{{ message }}</p>
+      <p class="message" v-if="message">{{ message }}</p>
     </div>
 
-    <div class = 'listaMedico'>
+    <!-- Lista de médicos -->
+    <div class="listaMedico">
       <ul>
         <li v-for="doctor in doctors" :key="doctor.id">
           <input type="checkbox" v-model="doctor.selected">
-          {{ doctor.nome }} - {{ doctor.registro }}
+          Nome: {{ doctor.nome }} - Registro: {{ doctor.registro }}
         </li>
       </ul>
       <button @click="removeSelectedDoctors">Remover médicos selecionados</button>
-      <p>{{ removeMessage }}</p>
+      <p class="message" v-if="removeMessage">{{ removeMessage }}</p>
     </div>
   </div>
 </template>
@@ -108,33 +40,40 @@ export default {
 
     const showMessage = (count) => {
       if (count === 1) {
-        removeMessage.value = 'Médico foi removido com sucesso!';
+        removeMessage.value = 'Médico removido com sucesso!';
       } else if (count > 1) {
-        removeMessage.value = 'Médicos foram removidos com sucesso!';
+        removeMessage.value = 'Médicos removidos com sucesso!';
       }
+      setTimeout(() => {
+        removeMessage.value = '';
+      }, 5000); // Tempo de exibição da mensagem em milissegundos (5 segundos)
     };
 
-    const createDoctor = async () => {
-      if (!doctor.nome || !doctor.registro) {
-        message.value = 'Por favor, insira o nome e o registro.';
-        return;
-      }
+     const createDoctor = async () => {
+        if (!doctor.nome || !doctor.registro) {
+          message.value = 'Por favor, insira o nome e o registro.';
+          return;
+        }
 
-      if (!/^\d+$/.test(doctor.registro)) {
-        message.value = 'O registro deve conter apenas números.';
-        return;
-      }
+        if (!/^\d+$/.test(doctor.registro)) {
+          message.value = 'O registro deve conter apenas números.';
+          return;
+        }
 
-      try {
-        await axios.post('http://localhost:3000/api/doctors', doctor);
-        message.value = 'Médico cadastrado com sucesso!';
-        doctor.nome = ''; // Reseta o campo de nome
-        doctor.registro = ''; // Reseta o campo registro
-        fetchDoctors(); // Atualiza a lista de médicos após adicionar um novo médico
-      } catch (error) {
-        console.error(error);
-      }
-    };
+        try {
+          await axios.post('http://localhost:3000/api/doctors', doctor);
+          message.value = 'Médico cadastrado com sucesso!';
+          doctor.nome = ''; // Limpa o campo de nome
+          doctor.registro = ''; // Limpa o campo de registro
+          fetchDoctors(); // Atualiza a lista de médicos após o cadastro
+          setTimeout(() => {
+            message.value = ''; // Limpa a mensagem após 5 segundos
+          }, 5000); // Tempo de exibição da mensagem em milissegundos (5 segundos)
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
 
     const fetchDoctors = async () => {
       try {
@@ -154,7 +93,7 @@ export default {
           console.error(error);
         }
       }
-      fetchDoctors(); // Atualiza a lista de médicos após remover médicos selecionados
+      fetchDoctors(); // Atualiza a lista de médicos após a remoção
       showMessage(selectedDoctors.length); // Exibe mensagem de remoção
     };
 
@@ -171,3 +110,76 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+#layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; 
+}
+
+.container {
+  display: flex;
+}
+
+.cadastrarMedico,
+.listaMedico {
+  width: 400px;
+}
+
+.cadastrarMedico {
+  margin-right: 30px; 
+}
+
+.cadastrarMedico input {
+  margin-bottom: 10px;
+  padding: 8px;
+  width: 100%;
+}
+
+.cadastrarMedico label {
+  margin-bottom: 5px;
+  display: block;
+}
+
+.cadastrarMedico button,
+.listaMedico button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff; 
+  border: none;
+  color: white;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cadastrarMedico button:hover,
+.listaMedico button:hover {
+  background-color: #0056b3; 
+}
+
+.listaMedico ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.listaMedico li {
+  background-color: #f9f9f9; 
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.listaMedico li input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.message {
+  color: green;
+  font-size: 20px;
+}
+</style>

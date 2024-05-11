@@ -13,6 +13,7 @@
     "moment": "^2.30.1",
     "vue": "^3.2.13",
     "vue-axios": "^3.5.2",
+    "vue-router": "^4.3.2",
     "vue-the-mask": "^0.11.1"
   },
   "devDependencies": {
