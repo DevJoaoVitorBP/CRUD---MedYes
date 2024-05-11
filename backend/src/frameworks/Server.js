@@ -23,6 +23,7 @@ class Server {
     this.app.get('/api/doctors/:id', this.handleAsync(this.getDoctor.bind(this)));
     this.app.put('/api/doctors/:id', this.handleAsync(this.updateDoctor.bind(this)));
     this.app.delete('/api/doctors/:id', this.handleAsync(this.deleteDoctor.bind(this)));
+    this.app.get('/api/doctors:id', this.handleAsync(this.getMedicoId.bind(this)));
     
 
     // Rotas para operações relacionadas a pacientes
@@ -31,6 +32,7 @@ class Server {
     this.app.get('/api/patients/:id', this.handleAsync(this.getPatient.bind(this)));
     this.app.put('/api/patients/:id', this.handleAsync(this.updatePatient.bind(this)));
     this.app.delete('/api/patients/:id', this.handleAsync(this.deletePatient.bind(this)));
+    this.app.get('/api/patients/:id', this.handleAsync(this.getPacienteId.bind(this)));
 
     // Rotas para operações relacionadas a secretárias
     this.app.post('/api/secretaries', this.handleAsync(this.createSecretary.bind(this)));
@@ -40,16 +42,10 @@ class Server {
     this.app.delete('/api/secretaries/:id', this.handleAsync(this.deleteSecretary.bind(this)));
 
     // Rotas para operações relacionadas a consultas
-    this.app.post('/api/appointments', this.handleAsync(this.createAppointment.bind(this)));
+    this.app.post('/api/appointments/create', this.handleAsync(this.createAppointment.bind(this)));
     this.app.get('/api/appointments', this.handleAsync(this.getAllAppointments.bind(this)));
-    this.app.get('/api/appointments/:id', async (req, res) => {
-      try {
-          const appointment = await this.appointmentUseCases.getAppointment(req.params.id);
-          res.send(appointment);
-      } catch (error) {
-          res.status(404).send({ message: error.message });
-      }
-  });    this.app.put('/api/appointments/:id', this.handleAsync(this.updateAppointment.bind(this)));
+    this.app.get('/api/appointments/:id', this.handleAsync(this.getAppointmentById.bind(this)));
+    this.app.put('/api/appointments/:id', this.handleAsync(this.updateAppointment.bind(this)));
     this.app.delete('/api/appointments/:id', this.handleAsync(this.deleteAppointment.bind(this)));
 
   }
@@ -93,7 +89,7 @@ class Server {
     res.send(patient);
   }
 
-  async getPatients(req, res) {
+  async getPatients(__, res) {
     const patients = await this.patientUseCases.getPatients();
     res.send(patients);
   }
@@ -119,7 +115,7 @@ class Server {
     res.send(secretary);
   }
 
-  async getSecretaries(req, res) {
+  async getSecretaries(__, res) {
     const secretaries = await this.secretaryUseCases.getSecretaries();
     res.send(secretaries);
   }
@@ -145,13 +141,13 @@ class Server {
     res.send(appointment);
   }
 
-  async getAllAppointments(req, res) {
+  async getAllAppointments(__, res) {
     const appointments = await this.appointmentUseCases.getAllAppointments();
     res.send(appointments);
   }
 
-  async getAppointment(req, res) {
-    const appointment = await this.appointmentUseCases.getAppointment(req.params.id);
+  async getAppointmentById(req, res) {
+    const appointment = await this.appointmentUseCases.getAppointmentById(req.params.id);
     res.send(appointment);
   }
 
@@ -165,6 +161,13 @@ class Server {
     res.send({ message: 'Appointment deleted' });
   }
 
+  async getMedicoId(req) {
+    await this.appointmentUseCases.getMedicoId(req.params.id);
+  }
+
+ async getPacienteId(req) {
+    return parseInt(req.params.id);
+  }
 
   // Inicializa o servidor na porta 3000
   start() {
