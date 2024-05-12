@@ -7,11 +7,18 @@ class AppointmentRepository {
 
     async create(appointment) {
         try {
+            // Obter o ID do médico e do paciente usando seus nomes
+            const medicoId = await this.getMedicoID(appointment.medicoNome);
+            const pacienteId = await this.getPacienteID(appointment.pacienteNome);
+    
+            // Executar a inserção no banco de dados
             const query = 'INSERT INTO atendimento (medicoId, pacienteId, dataEntrada, dataSaida, notas) VALUES (?, ?, ?, ?, ?)';
-            const values = [appointment.medicoId, appointment.pacienteId, appointment.dataEntrada, appointment.dataSaida, appointment.notas];
+            const values = [medicoId, pacienteId, appointment.dataEntrada, appointment.dataSaida, appointment.notas];
             const results = await this.executeQuery(query, values);
             const insertedId = results.insertId;
-            return new Appointment(insertedId, appointment.medicoId, appointment.pacienteId, appointment.dataEntrada, appointment.dataSaida, appointment.notas);
+    
+            // Retornar o objeto de consulta criado
+            return new Appointment(insertedId, appointment.medicoNome, appointment.pacienteNome, appointment.dataEntrada, appointment.dataSaida, appointment.notas);
         } catch (error) {
             throw new Error(`Erro ao criar consulta: ${error.message}`);
         }

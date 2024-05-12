@@ -49,8 +49,8 @@
   <div id="layout">
     <!-- Formulário de registro de consulta -->
     <div class="registerAppointment">
-      <input v-model="newAppointment.medicoId" placeholder="Nome do Médico">
-      <input v-model="newAppointment.pacienteId" placeholder="Nome do Paciente">
+      <input v-model="newAppointment.medicoNome" placeholder="Nome do Médico">
+      <input v-model="newAppointment.pacienteNome" placeholder="Nome do Paciente">
       <input v-model="newAppointment.dataEntrada" placeholder="Data de Entrada" type="date">
       <input v-model="newAppointment.dataSaida" placeholder="Data de Saída" type="date">
       <textarea v-model="newAppointment.notas" placeholder="Notas"></textarea>
@@ -63,7 +63,7 @@
       <ul>
         <li v-for="appointment in appointments" :key="appointment.id">
           <input type="checkbox" v-model="appointment.selected">
-          Médico: {{ appointment.medicoNome }} - Paciente: {{ appointment.pacienteNome }} - Entrada: {{ formattedDate(appointment.dataEntrada) }} - Saída: {{ formattedDate(appointment.dataSaida) }}
+          Médico: {{ appointment.medicoNome }} - Paciente: {{ appointment.pacienteNome }} - Entrada: {{ formattedDate(appointment.dataEntrada) }} - Saída: {{ formattedDate(appointment.dataSaida) }} - Notas: {{ appointment.notas }}
           <button @click="showUpdateForm(appointment)">Atualizar</button>
         </li>
       </ul>
@@ -73,8 +73,8 @@
 
     <!-- Formulário de atualização -->
     <div v-if="showUpdate">
-      <input v-model="selectedAppointment.medicoId" placeholder="Nome do Médico">
-      <input v-model="selectedAppointment.pacienteId" placeholder="Nome do Paciente">
+      <input v-model="selectedAppointment.medicoNome" placeholder="Nome do Médico">
+      <input v-model="selectedAppointment.pacienteNome" placeholder="Nome do Paciente">
       <input v-model="selectedAppointment.dataEntrada" placeholder="Data de Entrada" type="date">
       <input v-model="selectedAppointment.dataSaida" placeholder="Data de Saída" type="date">
       <textarea v-model="selectedAppointment.notas" placeholder="Notas"></textarea>
@@ -91,8 +91,8 @@ import axios from 'axios';
 export default {
   setup() {
     const newAppointment = reactive({
-      medicoId: '',
-      pacienteId: '',
+      medicoNome: '',
+      pacienteNome: '',
       dataEntrada: '',
       dataSaida: '',
       notas: ''
@@ -102,8 +102,8 @@ export default {
     const appointments = ref([]);
     const selectedAppointment = reactive({
       id: '',
-      medicoId: '',
-      pacienteId: '',
+      medicoNome: '',
+      pacienteNome: '',
       dataEntrada: '',
       dataSaida: '',
       notas: ''
@@ -139,17 +139,26 @@ export default {
       }
     };
 
-
     const createAppointment = async () => {
       try {
-        await axios.post('http://localhost:3000/api/appointments/create', newAppointment);
+        const appointment = {
+          medicoNome: newAppointment.medicoNome,
+          pacienteNome: newAppointment.pacienteNome,
+          dataEntrada: newAppointment.dataEntrada,
+          dataSaida: newAppointment.dataSaida,
+          notas: newAppointment.notas
+        };
+        await axios.post('http://localhost:3000/api/appointments/create', appointment);
         createMessage.value = 'Consulta cadastrada com sucesso!';
-        newAppointment.medicoId = '';
-        newAppointment.pacienteId = '';
+        newAppointment.medicoNome = '';
+        newAppointment.pacienteNome = '';
         newAppointment.dataEntrada = '';
         newAppointment.dataSaida = '';
         newAppointment.notas = '';
         await fetchAppointments();
+        setTimeout(() => {
+          createMessage.value = '';
+        }, 5000); // Limpar mensagem após 5 segundos
       } catch (error) {
         console.error('Erro ao criar consulta:', error);
       }
@@ -181,8 +190,8 @@ export default {
 
     const showUpdateForm = (appointment) => {
       selectedAppointment.id = appointment.id;
-      selectedAppointment.medicoId = appointment.medicoId;
-      selectedAppointment.pacienteId = appointment.pacienteId;
+      selectedAppointment.medicoNome = appointment.medicoNome;
+      selectedAppointment.pacienteNome = appointment.pacienteNome;
       selectedAppointment.dataEntrada = appointment.dataEntrada;
       selectedAppointment.dataSaida = appointment.dataSaida;
       selectedAppointment.notas = appointment.notas;
@@ -210,3 +219,4 @@ export default {
   }
 };
 </script>
+
