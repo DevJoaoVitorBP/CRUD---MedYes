@@ -31,17 +31,14 @@ class AppointmentUseCases {
       }
     }
   
-    async updateAppointment(id, updatedAppointment) {
+    async updateAppointment(id, appointment) {
       try {
-        const { medicoId, pacienteId, dataEntrada, dataSaida, notas } = updatedAppointment;
-        if (!medicoId || !pacienteId || !dataEntrada || !dataSaida || !notas) {
-          throw new Error('Campos obrigatórios ausentes');
-        }
-        return await this.appointmentRepository.update(id, medicoId, pacienteId, dataEntrada, dataSaida, notas);
+        await this.appointmentRepository.update(id, appointment);
       } catch (error) {
         throw new Error(`Erro ao atualizar consulta: ${error.message}`);
       }
     }
+    
   
     async deleteAppointment(id) {
       try {

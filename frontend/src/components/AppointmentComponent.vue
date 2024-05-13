@@ -142,16 +142,16 @@ export default {
     const createAppointment = async () => {
       try {
         const appointment = {
-          medicoNome: newAppointment.medicoNome,
-          pacienteNome: newAppointment.pacienteNome,
+          medicoId: newAppointment.medicoId,
+          pacienteId: newAppointment.pacienteId,
           dataEntrada: newAppointment.dataEntrada,
           dataSaida: newAppointment.dataSaida,
           notas: newAppointment.notas
         };
         await axios.post('http://localhost:3000/api/appointments/create', appointment);
         createMessage.value = 'Consulta cadastrada com sucesso!';
-        newAppointment.medicoNome = '';
-        newAppointment.pacienteNome = '';
+        newAppointment.medicoId = '';
+        newAppointment.pacienteId = '';
         newAppointment.dataEntrada = '';
         newAppointment.dataSaida = '';
         newAppointment.notas = '';
@@ -165,15 +165,24 @@ export default {
     };
 
     const updateAppointment = async () => {
-      try {
-        await axios.put(`http://localhost:3000/api/appointments/${selectedAppointment.id}`, selectedAppointment);
-        updateMessage.value = 'Consulta atualizada com sucesso!';
-        await fetchAppointments(); // Atualize a lista de consultas após a atualização
-        showUpdate.value = false; // Oculte o formulário de atualização
-      } catch (error) {
-        console.error('Erro ao atualizar consulta:', error);
-      }
+  try {
+    const appointment = {
+      medicoNome: selectedAppointment.medicoNome,
+      pacienteNome: selectedAppointment.pacienteNome,
+      dataEntrada: selectedAppointment.dataEntrada,
+      dataSaida: selectedAppointment.dataSaida,
+      notas: selectedAppointment.notas
     };
+    await axios.put(`http://localhost:3000/api/appointments/${selectedAppointment.id}`, appointment);
+    updateMessage.value = 'Consulta atualizada com sucesso!';
+    await fetchAppointments();
+    showUpdate.value = false;
+  } catch (error) {
+    console.error('Erro ao atualizar consulta:', error);
+  }
+};
+
+
 
     const removeSelectedAppointments = async () => {
       const selected = appointments.value.filter(appointment => appointment.selected);

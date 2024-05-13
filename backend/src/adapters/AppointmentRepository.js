@@ -71,16 +71,23 @@ class AppointmentRepository {
         }
     }
 
-    async update(id, medicoId, pacienteId, dataEntrada, dataSaida, notas) {
+    async update(id, appointment) {
         try {
+            const { medicoNome, pacienteNome, dataEntrada, dataSaida, notas } = appointment;
+            if (!medicoNome || !pacienteNome || !dataEntrada || !dataSaida || !notas) {
+                throw new Error('Campos obrigatórios ausentes');
+            }
+            const medicoId = await this.getMedicoID(medicoNome);
+            const pacienteId = await this.getPacienteID(pacienteNome);
             const query = 'UPDATE atendimento SET medicoId = ?, pacienteId = ?, dataEntrada = ?, dataSaida = ?, notas = ? WHERE id = ?';
-            const values = [medicoId, pacienteId, dataEntrada, dataSaida, notas, id]; 
+            const values = [medicoId, pacienteId, dataEntrada, dataSaida, notas, id];
             await this.executeQuery(query, values);
-            return { id, medicoId, pacienteId, dataEntrada, dataSaida, notas };
+            return new Appointment(id, medicoNome, pacienteNome, dataEntrada, dataSaida, notas);
         } catch (error) {
             throw new Error(`Erro ao atualizar consulta: ${error.message}`);
         }
     }
+    
 
     async delete(id) {
         try {
